@@ -599,8 +599,8 @@ class OrderEventCountableConnection(CountableConnection):
 
 class FulfillmentLine(ModelObjectType[models.FulfillmentLine]):
     id = graphene.GlobalID(required=True)
-    quantity = graphene.Int(required=True)
-    order_line = graphene.Field(lambda: OrderLine)
+    quantity = graphene.Int(required=True, description="Ordered quantity.")
+    order_line = graphene.Field(lambda: OrderLine, description="OrderLine object.")
 
     class Meta:
         description = "Represents line of the fulfillment."
@@ -614,10 +614,10 @@ class FulfillmentLine(ModelObjectType[models.FulfillmentLine]):
 
 class Fulfillment(ModelObjectType[models.Fulfillment]):
     id = graphene.GlobalID(required=True)
-    fulfillment_order = graphene.Int(required=True)
-    status = FulfillmentStatusEnum(required=True)
-    tracking_number = graphene.String(required=True)
-    created = graphene.DateTime(required=True)
+    fulfillment_order = graphene.Int(required=True, description="The id of fulfillment order.")
+    status = FulfillmentStatusEnum(required=True, description="Current status.")
+    tracking_number = graphene.String(required=True,  description="The tracking number of fulfillment order.")
+    created = graphene.DateTime(required=True,  description="Creation date.")
     lines = NonNullList(
         FulfillmentLine, description="List of lines for the fulfillment."
     )
@@ -672,17 +672,17 @@ class Fulfillment(ModelObjectType[models.Fulfillment]):
 
 class OrderLine(ModelObjectType[models.OrderLine]):
     id = graphene.GlobalID(required=True)
-    product_name = graphene.String(required=True)
-    variant_name = graphene.String(required=True)
-    product_sku = graphene.String()
-    product_variant_id = graphene.String()
-    is_shipping_required = graphene.Boolean(required=True)
-    quantity = graphene.Int(required=True)
-    quantity_fulfilled = graphene.Int(required=True)
-    unit_discount_reason = graphene.String()
-    tax_rate = graphene.Float(required=True)
-    digital_content_url = graphene.Field(DigitalContentUrl)
-    thumbnail = ThumbnailField()
+    product_name = graphene.String(required=True, description="The name of the product.")
+    variant_name = graphene.String(required=True, description="The name of the variant.")
+    product_sku = graphene.String(description="The product position identificator.")
+    product_variant_id = graphene.String(description="Id of the variant.")
+    is_shipping_required = graphene.Boolean(required=True, description="Shows if shipping is required.")
+    quantity = graphene.Int(required=True, description="Ordered quantity.")
+    quantity_fulfilled = graphene.Int(required=True, description="Fulfilled quantity.")
+    unit_discount_reason = graphene.String(description="The reason of discoutn.")
+    tax_rate = graphene.Float(required=True, description="The tax rate.")
+    digital_content_url = graphene.Field(DigitalContentUrl, description="The url of the content.")
+    thumbnail = ThumbnailField(description="Product thumbnail.")
     unit_price = graphene.Field(
         TaxedMoney,
         description="Price of the single item in the order line.",
@@ -994,9 +994,9 @@ class OrderLine(ModelObjectType[models.OrderLine]):
 @federated_entity("id")
 class Order(ModelObjectType[models.Order]):
     id = graphene.GlobalID(required=True)
-    created = graphene.DateTime(required=True)
-    updated_at = graphene.DateTime(required=True)
-    status = OrderStatusEnum(required=True)
+    created = graphene.DateTime(required=True, description="Order creation date.")
+    updated_at = graphene.DateTime(required=True, description="Order update date.")
+    status = OrderStatusEnum(required=True, description="Order status")
     user = graphene.Field(
         User,
         description=(
@@ -1030,7 +1030,7 @@ class Order(ModelObjectType[models.Order]):
             f"{AuthorizationFilters.OWNER.name}."
         ),
     )
-    shipping_method_name = graphene.String()
+    shipping_method_name = graphene.String(description="Name of the the shipping method.")
     collection_point_name = graphene.String()
     channel = graphene.Field(Channel, required=True)
     fulfillments = NonNullList(
@@ -1173,9 +1173,9 @@ class Order(ModelObjectType[models.Order]):
     gift_cards = NonNullList(
         GiftCard, description="List of user gift cards.", required=True
     )
-    customerNote = graphene.Boolean(required=True)
-    customer_note = graphene.String(required=True)
-    weight = graphene.Field(Weight, required=True)
+    customerNote = graphene.Boolean(required=True, description="Shows if customer left any notes.")
+    customer_note = graphene.String(required=True, description="Customer notes.")
+    weight = graphene.Field(Weight, required=True, description="Weight of the order.")
     redirect_url = graphene.String()
     subtotal = graphene.Field(
         TaxedMoney,
